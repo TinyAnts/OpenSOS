@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Users, MapPin, Radio, Wifi, WifiOff, CheckCircle2, AlertTriangle } from 'lucide-react'
+import { Users, MapPin, Radio, Wifi, WifiOff, CheckCircle2, AlertTriangle, ChevronRight } from 'lucide-react'
 import { useRouter } from '../router.jsx'
 import { useStore, readiness } from '../store.jsx'
 import { AppHeader, TabBar } from '../components/ui.jsx'
@@ -17,6 +17,15 @@ export default function Home() {
   const startedAt = useRef(0)
 
   const triggerLabel = state.trigger === 'hold' ? 'Press & hold' : state.trigger === 'bluetooth' ? 'Bluetooth button' : 'Webhook'
+
+  // Nudge the user to finish setting up a trigger they chose but haven't connected.
+  const needsBt = state.trigger === 'bluetooth' && !state.bluetooth.paired
+  const needsWh = state.trigger === 'webhook' && !state.webhook.verified
+  const setup = needsBt
+    ? { title: 'Pair your Bluetooth button', sub: 'Connect it to trigger SOS with one press.', cta: 'Pair now', to: '/trigger/bluetooth', icon: <Radio size={20} /> }
+    : needsWh
+    ? { title: 'Finish Wi-Fi setup', sub: 'Connect your relay to trigger SOS over the network.', cta: 'Set up', to: '/trigger/webhook', icon: <Wifi size={20} /> }
+    : null
 
   useEffect(() => () => cancelAnimationFrame(raf.current), [])
 
@@ -53,6 +62,17 @@ export default function Home() {
           <span className="ico">{ready ? <CheckCircle2 size={19} /> : <AlertTriangle size={19} />}</span>
           {ready ? 'System ready' : 'Setup needed'}
         </div>
+
+        {setup && (
+          <button className="pair-prompt" onClick={() => navigate(setup.to)}>
+            <span className="pp-ico">{setup.icon}</span>
+            <span className="pp-main">
+              <span className="pp-title">{setup.title}</span>
+              <span className="pp-sub">{setup.sub}</span>
+            </span>
+            <span className="pp-cta">{setup.cta}<ChevronRight size={16} /></span>
+          </button>
+        )}
 
         <div className="sos-wrap">
           <button

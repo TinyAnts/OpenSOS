@@ -25,7 +25,7 @@ export default function Onboarding() {
       setStep(2)
     } else {
       update((s) => ({ ...s, trigger, onboarded: true }))
-      navigate('/home')
+      navigate(trigger === 'bluetooth' ? '/trigger/bluetooth' : trigger === 'webhook' ? '/trigger/webhook' : '/home')
     }
   }
 

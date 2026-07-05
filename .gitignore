@@ -1,0 +1,9 @@
+node_modules
+dist
+.standalone-tmp
+*.log
+_*.mjs
+_*.png
+preview/_gallery-render.png
+vite.config.js.timestamp-*
+.DS_Store

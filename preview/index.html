@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>OpenSOS — Screenshot Gallery</title>
+<style>
+  :root {
+    --bg:#f6f7f9; --card:#fff; --text:#1a1d21; --muted:#5f666e; --border:#e4e7eb;
+    --accent:#2563eb; --shadow:0 4px 16px rgba(16,24,40,.08);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#121418; --card:#1b1e24; --text:#f1f3f5; --muted:#9aa2ac; --border:#2b3038; --accent:#3b82f6; --shadow:0 6px 20px rgba(0,0,0,.45); }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text)}
+  header{padding:40px 24px 8px;max-width:1200px;margin:0 auto}
+  h1{margin:0 0 4px;font-size:26px;letter-spacing:-.02em;display:flex;align-items:center;gap:10px}
+  .sub{color:var(--muted);margin:0 0 20px;font-size:15px}
+  .tabs{display:flex;gap:8px;flex-wrap:wrap;position:sticky;top:0;background:var(--bg);padding:12px 0;z-index:5}
+  .tabs button{font:inherit;font-weight:600;font-size:14px;padding:9px 16px;border-radius:999px;border:1px solid var(--border);background:var(--card);color:var(--text);cursor:pointer}
+  .tabs button.active{background:var(--accent);color:#fff;border-color:transparent}
+  main{max-width:1200px;margin:0 auto;padding:8px 24px 60px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px}
+  figure{margin:0;background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:var(--shadow)}
+  figure img{display:block;width:100%;height:auto;background:var(--bg)}
+  figcaption{padding:12px 16px;font-size:14px;font-weight:600}
+  figcaption small{display:block;color:var(--muted);font-weight:400;margin-top:2px}
+  .empty{color:var(--muted);padding:40px 0}
+</style>
+</head>
+<body>
+<header>
+  <h1><span style="color:#dc2626">◆</span> OpenSOS — Design Preview</h1>
+  <p class="sub">Every screen, captured from the running app in mock mode. Switch viewport to compare responsive layouts.</p>
+  <div class="tabs" id="tabs"></div>
+</header>
+<main><div class="grid" id="grid"></div></main>
+<script>
+  const SCREENS = [
+    ['01-welcome','Welcome','First launch'],
+    ['02-onboarding','Onboarding','Guided setup'],
+    ['03-home','Home dashboard','System ready + SOS'],
+    ['04-countdown','Emergency countdown','Cancel window'],
+    ['05-alert-progress','Alert progress','Reaching contacts'],
+    ['06-alert-success','Alert sent','All delivered'],
+    ['07-alert-partial','Partial failure','Some not reached'],
+    ['08-contacts','Contacts','Trusted people'],
+    ['09-trigger','Trigger selection','How SOS starts'],
+    ['10-bluetooth','Bluetooth setup','Pair a button'],
+    ['11-webhook','Webhook setup','External trigger'],
+    ['12-history','Event history','Past alerts + tests'],
+    ['13-settings','Settings','Preferences'],
+  ];
+  const DARK = [
+    ['home','Home dashboard'],['partial','Partial failure'],
+    ['contacts','Contacts'],['settings','Settings'],
+  ];
+  const VIEWS = [
+    ['mobile','Mobile · 390×844'],
+    ['tablet','Tablet · 768×1024'],
+    ['desktop','Desktop · 1440×900'],
+    ['dark','Dark mode · mobile'],
+  ];
+  let current = 'mobile';
+  const tabs = document.getElementById('tabs');
+  const grid = document.getElementById('grid');
+  function render(){
+    grid.innerHTML='';
+    const list = current==='dark' ? DARK.map(d=>[d[0],d[1],'']) : SCREENS;
+    list.forEach(([file,title,sub])=>{
+      const fig=document.createElement('figure');
+      const img=document.createElement('img');
+      img.loading='lazy'; img.src=`./${current}/${file}.png`; img.alt=title;
+      img.onerror=()=>{fig.style.display='none'};
+      const cap=document.createElement('figcaption');
+      cap.innerHTML= sub ? `${title}<small>${sub}</small>` : title;
+      fig.append(img,cap); grid.append(fig);
+    });
+  }
+  VIEWS.forEach(([key,label])=>{
+    const b=document.createElement('button');
+    b.textContent=label; b.className=key===current?'active':'';
+    b.onclick=()=>{current=key;[...tabs.children].forEach(c=>c.classList.remove('active'));b.classList.add('active');render()};
+    tabs.append(b);
+  });
+  render();
+</script>
+</body>
+</html>

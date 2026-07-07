@@ -9,7 +9,6 @@ export default function Bluetooth() {
   const { state, update } = useStore()
   const paired = state.bluetooth.paired
   const [scanning, setScanning] = useState(false)
-  const [found, setFound] = useState(paired)
   const [advanced, setAdvanced] = useState(false)
   const [error, setError] = useState('')
 
@@ -17,39 +16,32 @@ export default function Bluetooth() {
 
   async function scan() {
     setError('')
-    if (supported) {
-      setScanning(true)
-      try {
-        // Live button-press events require the device's GATT UUIDs; without
-        // them we still pair so the device shows as connected.
-        const r = await connectBle({})
-        update((s) => ({ ...s, bluetooth: { deviceName: r.deviceName, paired: true } }))
-        setFound(true)
-      } catch (e) {
-        if (e.code === 'UNSUPPORTED') return mockScan()
-        setError('Pairing was cancelled. Try again.')
-      } finally {
-        setScanning(false)
-      }
+    if (!supported) {
+      setError('This browser can’t pair Bluetooth. Try Chrome, or use a demo button below.')
       return
     }
-    mockScan()
-  }
-
-  function mockScan() {
     setScanning(true)
-    setFound(false)
-    setTimeout(() => { setScanning(false); setFound(true) }, 1400)
+    try {
+      // Live button-press events require the device's GATT UUIDs; without them
+      // we still pair so the device shows as connected.
+      const r = await connectBle({})
+      update((s) => ({ ...s, bluetooth: { deviceName: r.deviceName, paired: true } }))
+    } catch (e) {
+      if (e.code === 'UNSUPPORTED') setError('This browser can’t pair Bluetooth. Try Chrome, or use a demo button below.')
+      else setError('No button found. Make sure it’s in pairing mode — or use a demo button below.')
+    } finally {
+      setScanning(false)
+    }
   }
 
-  function pairMock() {
-    update((s) => ({ ...s, bluetooth: { deviceName: 'OpenSOS Button', paired: true } }))
+  function pairDemo() {
+    setError('')
+    update((s) => ({ ...s, bluetooth: { deviceName: 'Demo button', paired: true } }))
   }
 
   function unpair() {
     unregisterConnection('bluetooth')
     update((s) => ({ ...s, bluetooth: { deviceName: '', paired: false } }))
-    setFound(false)
   }
 
   return (
@@ -75,33 +67,25 @@ export default function Bluetooth() {
           <>
             {!supported && (
               <Banner tone="warn" icon={<AlertTriangle size={18} />}>
-                This browser can’t pair Bluetooth directly. Use Chrome or Edge over https, or continue in demo mode.
+                This browser can’t pair Bluetooth. Chrome works best. You can still use a demo button below.
               </Banner>
             )}
             {error && <Banner tone="warn" icon={<AlertTriangle size={18} />}>{error}</Banner>}
 
-            <div className="empty" style={{ padding: '30px 20px' }}>
+            <div className="empty" style={{ padding: '28px 20px' }}>
               <div className="empty-ico" style={{ color: scanning ? 'var(--primary)' : undefined }}>
                 {scanning ? <span className="spinner" /> : <BtIcon size={28} />}
               </div>
-              <div className="empty-title">{scanning ? 'Searching…' : found ? 'Device found' : 'No device paired'}</div>
-              <div>{scanning ? 'Hold your button near the phone.' : found ? 'We found a compatible button.' : 'Put your button in pairing mode, then scan.'}</div>
+              <div className="empty-title">{scanning ? 'Searching…' : 'No device paired'}</div>
+              <div>{scanning ? 'Hold your button near the phone.' : 'Put your button in pairing mode, then scan.'}</div>
             </div>
 
-            {found && !scanning && !supported && (
-              <button className="row" style={{ width: '100%', textAlign: 'left', cursor: 'pointer' }} onClick={pairMock}>
-                <div className="avatar" style={{ color: 'var(--primary)' }}><Radio size={20} /></div>
-                <div className="row-main">
-                  <div className="row-title">OpenSOS Button</div>
-                  <div className="row-sub">Tap to pair</div>
-                </div>
-                <ChevronRight size={18} className="muted" />
-              </button>
-            )}
-
-            <div className="mt-auto" style={{ paddingTop: 20 }}>
+            <div className="mt-auto" style={{ paddingTop: 16 }}>
               <button className="btn btn-primary" onClick={scan} disabled={scanning}>
                 {scanning ? 'Scanning…' : 'Scan for devices'}
+              </button>
+              <button className="btn btn-ghost" style={{ marginTop: 10, color: 'var(--text-muted)' }} onClick={pairDemo}>
+                No button yet? Use a demo one
               </button>
             </div>
           </>

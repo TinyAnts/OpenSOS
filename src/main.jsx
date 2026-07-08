@@ -11,3 +11,10 @@ createRoot(document.getElementById('root')).render(
     </StoreProvider>
   </React.StrictMode>
 )
+
+// Register the service worker (only when served over http/https, not file://).
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js', { scope: './' }).catch(() => {})
+  })
+}

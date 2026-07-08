@@ -1,0 +1,14 @@
+# Render Blueprint for the OpenSOS Wi-Fi relay.
+# In Render: New +  ->  Blueprint  ->  pick the OpenSOS repo  ->  Apply.
+services:
+  - type: web
+    name: opensos-relay
+    runtime: node
+    plan: free
+    rootDir: relay
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: TOKEN
+        generateValue: true   # Render creates a strong random token for you

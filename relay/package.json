@@ -1,0 +1,13 @@
+{
+  "name": "opensos-relay",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "OpenSOS Wi-Fi trigger relay (WebSocket, dependency-free).",
+  "scripts": {
+    "start": "node server.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

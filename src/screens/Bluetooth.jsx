@@ -3,7 +3,7 @@ import { Radio, Check, ChevronRight, Bluetooth as BtIcon, AlertTriangle } from '
 import { useStore } from '../store.jsx'
 import { AppHeader, Banner } from '../components/ui.jsx'
 import { bleSupported, connectBle } from '../devices/ble.js'
-import { unregisterConnection } from '../devices/manager.js'
+import { unregisterConnection, fireTrigger } from '../devices/manager.js'
 
 export default function Bluetooth() {
   const { state, update } = useStore()
@@ -61,7 +61,8 @@ export default function Bluetooth() {
               </div>
               <span className="pill pill--ok"><Check size={14} /> Paired</span>
             </div>
-            <button className="btn btn-secondary" style={{ marginTop: 16 }} onClick={unpair}>Remove device</button>
+            <button className="btn btn-primary" style={{ marginTop: 16 }} onClick={() => fireTrigger('bluetooth', { deviceName: state.bluetooth.deviceName })}>Send a test press</button>
+            <button className="btn btn-ghost" style={{ marginTop: 10, color: 'var(--text-muted)' }} onClick={unpair}>Remove device</button>
           </>
         ) : (
           <>

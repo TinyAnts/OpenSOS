@@ -1,19 +1,53 @@
-// Mock alert service. Simulates delivering an SOS alert to contacts.
-// No real network calls are made — this is a safe, offline demo.
+// Alert service. Delivery to contacts is simulated (safe demo), but location
+// is REAL: it reads the device GPS via the browser Geolocation API, with a
+// graceful fallback to a placeholder if permission is denied or unavailable.
 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms))
 
-// Deterministic-ish location for the demo.
+// Placeholder used only when real location isn't available/allowed.
 export function getMockLocation() {
-  return { lat: 37.7749, lng: -122.4194, accuracy: 12, label: 'Market St, San Francisco' }
+  return { lat: 37.7749, lng: -122.4194, accuracy: null, label: 'Sample location (GPS unavailable)', real: false }
+}
+
+function coordsLabel(lat, lng, accuracy) {
+  const acc = accuracy ? ` (±${Math.round(accuracy)} m)` : ''
+  return `${lat.toFixed(5)}, ${lng.toFixed(5)}${acc}`
+}
+
+// Reads the device's real location. Resolves to a location object either way.
+export function getLocation({ shareLocation = true } = {}) {
+  return new Promise((resolve) => {
+    if (!shareLocation) {
+      resolve({ lat: null, lng: null, accuracy: null, label: 'Location not shared', real: false })
+      return
+    }
+    if (typeof navigator === 'undefined' || !navigator.geolocation) {
+      resolve(getMockLocation())
+      return
+    }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude, accuracy } = pos.coords
+        resolve({
+          lat: latitude,
+          lng: longitude,
+          accuracy,
+          label: coordsLabel(latitude, longitude, accuracy),
+          mapsUrl: `https://maps.google.com/?q=${latitude},${longitude}`,
+          real: true,
+        })
+      },
+      () => resolve(getMockLocation()), // denied / error / timeout
+      { enableHighAccuracy: true, timeout: 9000, maximumAge: 15000 }
+    )
+  })
 }
 
 // forceOutcome: undefined | 'success' | 'partial' — lets previews show each state.
-export async function sendAlert({ contacts, onStep, forceOutcome }) {
+export async function sendAlert({ contacts, onStep, forceOutcome, shareLocation = true }) {
   const results = []
   onStep && onStep({ stage: 'locating', label: 'Getting your location' })
-  await wait(700)
-  const loc = getMockLocation()
+  const loc = await getLocation({ shareLocation })
 
   onStep && onStep({ stage: 'sending', label: 'Alerting your contacts', location: loc })
   for (let i = 0; i < contacts.length; i++) {
@@ -21,7 +55,6 @@ export async function sendAlert({ contacts, onStep, forceOutcome }) {
     await wait(550)
     let ok = true
     if (forceOutcome === 'partial') {
-      // Fail the last contact only.
       ok = i !== contacts.length - 1
     } else if (forceOutcome === 'success') {
       ok = true

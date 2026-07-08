@@ -14,6 +14,7 @@ export default function Alert() {
 
   const [phase, setPhase] = useState('progress') // progress | result
   const [contactStatus, setContactStatus] = useState({}) // id -> 'ok' | 'fail'
+  const [locLabel, setLocLabel] = useState('')
   const [stage, setStage] = useState('locating')
   const [result, setResult] = useState(null)
   const loggedRef = useRef(false)
@@ -38,10 +39,11 @@ export default function Alert() {
     sendAlert({
       contacts,
       forceOutcome: undefined,
+      shareLocation: state.settings.shareLocation,
       onStep: (s) => {
         if (!alive) return
         if (s.stage === 'locating') setStage('locating')
-        if (s.stage === 'sending') setStage('sending')
+        if (s.stage === 'sending') { setStage('sending'); if (s.location) setLocLabel(s.location.label) }
         if (s.stage === 'contact') setContactStatus((cs) => ({ ...cs, [s.contact.id]: s.ok ? 'ok' : 'fail' }))
       },
     }).then((r) => {
@@ -56,7 +58,7 @@ export default function Alert() {
           delivered: r.delivered,
           total: r.total,
           trigger: state.trigger === 'hold' ? 'Held SOS button' : state.trigger === 'bluetooth' ? 'Bluetooth button' : 'Webhook',
-          location: `${r.location.lat}, ${r.location.lng}`,
+          location: r.location.label,
         })
       }
     })
@@ -82,7 +84,7 @@ export default function Alert() {
           </span>
           <div className="step-main">
             <div className="step-title">Getting your location</div>
-            <div className="step-sub">{stage === 'locating' ? 'Please wait…' : 'Market St, San Francisco'}</div>
+            <div className="step-sub">{stage === 'locating' ? 'Please wait…' : (locLabel || 'Location ready')}</div>
           </div>
         </div>
 
@@ -130,9 +132,13 @@ function Result({ result, isTest, navigate }) {
 
       <div className="card" style={{ display: 'flex', gap: 12, alignItems: 'center', marginTop: 16 }}>
         <span style={{ color: 'var(--primary)' }}><MapPin size={22} /></span>
-        <div style={{ flex: 1 }}>
-          <div style={{ fontWeight: 600, fontSize: 15 }}>Location shared</div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontWeight: 600, fontSize: 15 }}>{result.location.real ? 'Location shared' : 'Location'}</div>
           <div className="hint" style={{ margin: 0 }}>{result.location.label}</div>
+          {result.location.mapsUrl && (
+            <a href={result.location.mapsUrl} target="_blank" rel="noreferrer"
+               style={{ fontSize: 13, fontWeight: 600, color: 'var(--primary)' }}>Open in Maps</a>
+          )}
         </div>
       </div>
 

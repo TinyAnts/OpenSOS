@@ -27,7 +27,7 @@ export default function Contacts() {
                 <div className="avatar">{initials(c.name)}</div>
                 <div className="row-main">
                   <div className="row-title">{c.name}</div>
-                  <div className="row-sub">{c.phone}{c.relation ? ` · ${c.relation}` : ''}</div>
+                  <div className="row-sub">{c.email || c.phone}{c.relation ? ` · ${c.relation}` : ''}</div>
                 </div>
                 <button className="icon-btn" aria-label={`Remove ${c.name}`} onClick={() => removeContact(c.id)}>
                   <Trash2 size={18} />

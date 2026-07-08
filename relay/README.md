@@ -70,3 +70,29 @@ one click.
 Render's free service **sleeps after ~15 min idle** and takes ~30–60s to wake.
 Fine for demos; for real emergency use, switch the plan to a paid always-on
 instance (or move the relay to Cloudflare Workers, which never sleep).
+
+## Email alerts (Resend)
+
+The relay can email your contacts when an SOS fires. Add these on Render
+(service → **Environment**):
+
+- `RESEND_API_KEY` — your Resend API key (kept on the server, never in the app).
+- `MAIL_FROM` — optional sender, e.g. `OpenSOS <alerts@yourdomain.com>`.
+  Defaults to `OpenSOS <onboarding@resend.dev>`.
+
+The app derives the relay address from the **Webhook & Wi-Fi** URL you already
+set (same host + token), and calls `POST /alert`. Each contact with an email
+gets the alert with your location + a Google Maps link.
+
+**Resend free-tier limits (no verified domain):** you can only send **from**
+`onboarding@resend.dev` and **only to your own Resend account email**. To email
+real contacts, verify a domain in Resend and set `MAIL_FROM` to an address on it.
+Free tier allows ~100 emails/day, 3,000/month.
+
+Test directly:
+
+```bash
+curl -X POST "https://opensos-relay.onrender.com/alert?token=YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"contacts":[{"name":"Me","email":"you@example.com"}],"location":{"label":"51.5,-0.1","mapsUrl":"https://maps.google.com/?q=51.5,-0.1"},"test":true}'
+```

@@ -11,7 +11,7 @@ const DEFAULT_STATE = {
   onboarded: false,
   contacts: [],
   trigger: 'hold', // 'hold' | 'bluetooth' | 'webhook'
-  bluetooth: { deviceName: '', paired: false },
+  bluetooth: { deviceName: '', paired: false, namePrefix: '', serviceUuid: '', characteristicUuid: '' },
   webhook: { url: '', verified: false },
   settings: {
     theme: 'system', // 'system' | 'light' | 'dark'
@@ -105,9 +105,9 @@ export function demoState() {
     ...DEFAULT_STATE,
     onboarded: true,
     contacts: [
-      { id: 'c1', name: 'Priya Sharma', phone: '+1 415 555 0132', relation: 'Sister' },
-      { id: 'c2', name: 'Daniel Okafor', phone: '+1 415 555 0148', relation: 'Friend' },
-      { id: 'c3', name: 'Mom', phone: '+1 408 555 0177', relation: 'Family' },
+      { id: 'c1', name: 'Priya Sharma', phone: '+1 415 555 0132', email: 'priya@example.com', relation: 'Sister' },
+      { id: 'c2', name: 'Daniel Okafor', phone: '+1 415 555 0148', email: 'daniel@example.com', relation: 'Friend' },
+      { id: 'c3', name: 'Mom', phone: '+1 408 555 0177', email: 'mom@example.com', relation: 'Family' },
     ],
     trigger: 'bluetooth',
     bluetooth: { deviceName: 'OpenSOS Button', paired: true },

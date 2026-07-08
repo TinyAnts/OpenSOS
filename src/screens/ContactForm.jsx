@@ -8,13 +8,14 @@ export default function ContactForm() {
   const { addContact } = useStore()
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
+  const [email, setEmail] = useState('')
   const [relation, setRelation] = useState('')
 
-  const valid = name.trim() && phone.trim()
+  const valid = name.trim() && (phone.trim() || email.trim())
 
   function save() {
     if (!valid) return
-    addContact({ name: name.trim(), phone: phone.trim(), relation: relation.trim() })
+    addContact({ name: name.trim(), phone: phone.trim(), email: email.trim(), relation: relation.trim() })
     navigate('/contacts')
   }
 
@@ -28,7 +29,11 @@ export default function ContactForm() {
           <input id="c-name" className="input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Full name" />
         </div>
         <div className="field">
-          <label htmlFor="c-phone">Phone number</label>
+          <label htmlFor="c-email">Email <span className="muted">(used to send alerts)</span></label>
+          <input id="c-email" className="input" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@example.com" inputMode="email" type="email" />
+        </div>
+        <div className="field">
+          <label htmlFor="c-phone">Phone number <span className="muted">(optional)</span></label>
           <input id="c-phone" className="input" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+1 415 555 0132" inputMode="tel" />
         </div>
         <div className="field">

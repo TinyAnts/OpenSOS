@@ -9,6 +9,7 @@ export default function Onboarding() {
   const [step, setStep] = useState(0)
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
+  const [email, setEmail] = useState('')
   const [locAllowed, setLocAllowed] = useState(true)
   const [trigger, setTrigger] = useState('hold')
 
@@ -16,8 +17,8 @@ export default function Onboarding() {
 
   function next() {
     if (step === 0) {
-      if (name.trim() && phone.trim()) {
-        addContact({ name: name.trim(), phone: phone.trim(), relation: '' })
+      if (name.trim() && (phone.trim() || email.trim())) {
+        addContact({ name: name.trim(), phone: phone.trim(), email: email.trim(), relation: '' })
       }
       setStep(1)
     } else if (step === 1) {
@@ -34,7 +35,7 @@ export default function Onboarding() {
     else setStep(step - 1)
   }
 
-  const canContinue = step !== 0 || (name.trim() && phone.trim())
+  const canContinue = step !== 0 || (name.trim() && (phone.trim() || email.trim()))
 
   return (
     <div className="screen">
@@ -49,6 +50,10 @@ export default function Onboarding() {
           <div className="field">
             <label htmlFor="ob-name">Name</label>
             <input id="ob-name" className="input" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Priya Sharma" />
+          </div>
+          <div className="field">
+            <label htmlFor="ob-email">Email</label>
+            <input id="ob-email" className="input" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@example.com" inputMode="email" type="email" />
           </div>
           <div className="field">
             <label htmlFor="ob-phone">Phone number</label>

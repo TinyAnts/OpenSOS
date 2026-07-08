@@ -40,6 +40,8 @@ export default function Alert() {
       contacts,
       forceOutcome: undefined,
       shareLocation: state.settings.shareLocation,
+      relayUrl: state.webhook.url,
+      test: isTest,
       onStep: (s) => {
         if (!alive) return
         if (s.stage === 'locating') setStage('locating')
@@ -149,7 +151,7 @@ function Result({ result, isTest, navigate }) {
             <div className="avatar">{initials(contact.name)}</div>
             <div className="row-main">
               <div className="row-title">{contact.name}</div>
-              <div className="row-sub">{contact.phone || 'Contact'}</div>
+              <div className="row-sub">{contact.email || contact.phone || 'Contact'}</div>
             </div>
             {ok
               ? <span className="pill pill--ok"><Check size={14} /> Delivered</span>

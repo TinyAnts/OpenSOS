@@ -7,3 +7,6 @@ _*.png
 preview/_gallery-render.png
 vite.config.js.timestamp-*
 .DS_Store
+
+# draft manuscript (keep private until published)
+paper/*.docx

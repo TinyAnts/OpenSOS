@@ -1,17 +1,23 @@
 import { useState } from 'react'
-import { Check, ChevronRight, AlertTriangle } from 'lucide-react'
+import { Check, ChevronRight, AlertTriangle, Home } from 'lucide-react'
 import { useStore } from '../store.jsx'
-import { AppHeader, Banner } from '../components/ui.jsx'
+import { useRouter } from '../router.jsx'
+import { AppHeader, Banner, TabBar } from '../components/ui.jsx'
 import { connectRelay, isRelayUrl, wsSupported } from '../devices/wifi.js'
 import { unregisterConnection } from '../devices/manager.js'
 
 export default function Webhook() {
   const { state, update } = useStore()
+  const { navigate } = useRouter()
   const [url, setUrl] = useState(state.webhook.url || '')
   const [testing, setTesting] = useState(false)
   const [verified, setVerified] = useState(state.webhook.verified)
   const [advanced, setAdvanced] = useState(false)
   const [error, setError] = useState('')
+
+  // Show the connected UI both right after a successful test and when returning
+  // to a screen that was already verified in a previous visit.
+  const connected = verified || state.webhook.verified
 
   async function verify() {
     setError('')
@@ -56,7 +62,7 @@ export default function Webhook() {
       <div className="screen" style={{ paddingTop: 4 }}>
         <p className="lead">Let a Wi-Fi device or another app start an alert over the network.</p>
 
-        {verified && <Banner tone="ok" icon={<Check size={18} />}>Connected and listening for triggers.</Banner>}
+        {connected && <Banner tone="ok" icon={<Check size={18} />}>Connected and listening for triggers.</Banner>}
         {error && <Banner tone="warn" icon={<AlertTriangle size={18} />}>{error}</Banner>}
 
         <div className="field">
@@ -66,9 +72,17 @@ export default function Webhook() {
         </div>
 
         <button className="btn btn-primary" onClick={verify} disabled={!url.trim() || testing}>
-          {testing ? 'Connecting…' : verified ? 'Reconnect' : 'Test connection'}
+          {testing ? 'Connecting…' : connected ? 'Reconnect' : 'Test connection'}
         </button>
-        {verified && <button className="btn btn-secondary" style={{ marginTop: 12 }} onClick={disconnect}>Disconnect</button>}
+
+        {connected && (
+          <>
+            <button className="btn btn-primary" style={{ marginTop: 12 }} onClick={() => navigate('/home')}>
+              <Home size={18} /> Done — go to Home
+            </button>
+            <button className="btn btn-secondary" style={{ marginTop: 12 }} onClick={disconnect}>Disconnect</button>
+          </>
+        )}
 
         <div style={{ marginTop: 22 }}>
           <button className="disclosure" aria-expanded={advanced} onClick={() => setAdvanced(!advanced)}>
@@ -87,6 +101,7 @@ export default function Webhook() {
           )}
         </div>
       </div>
+      <TabBar active="trigger" />
     </>
   )
 }

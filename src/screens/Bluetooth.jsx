@@ -1,12 +1,14 @@
 import { useState } from 'react'
-import { Radio, Check, ChevronRight, Bluetooth as BtIcon, AlertTriangle } from 'lucide-react'
+import { Radio, Check, ChevronRight, Bluetooth as BtIcon, AlertTriangle, Home } from 'lucide-react'
 import { useStore } from '../store.jsx'
-import { AppHeader, Banner } from '../components/ui.jsx'
+import { useRouter } from '../router.jsx'
+import { AppHeader, Banner, TabBar } from '../components/ui.jsx'
 import { bleSupported, connectBle } from '../devices/ble.js'
 import { unregisterConnection, fireTrigger } from '../devices/manager.js'
 
 export default function Bluetooth() {
   const { state, update } = useStore()
+  const { navigate } = useRouter()
   const bt = state.bluetooth
   const paired = bt.paired
   const [scanning, setScanning] = useState(false)
@@ -70,7 +72,10 @@ export default function Bluetooth() {
               </div>
               <span className="pill pill--ok"><Check size={14} /> Paired</span>
             </div>
-            <button className="btn btn-primary" style={{ marginTop: 16 }} onClick={() => fireTrigger('bluetooth', { deviceName: bt.deviceName })}>Send a test press</button>
+            <button className="btn btn-primary" style={{ marginTop: 16 }} onClick={() => navigate('/home')}>
+              <Home size={18} /> Done — go to Home
+            </button>
+            <button className="btn btn-secondary" style={{ marginTop: 12 }} onClick={() => fireTrigger('bluetooth', { deviceName: bt.deviceName })}>Send a test press</button>
             <button className="btn btn-ghost" style={{ marginTop: 10, color: 'var(--text-muted)' }} onClick={unpair}>Remove device</button>
           </>
         ) : (
@@ -145,6 +150,7 @@ export default function Bluetooth() {
           )}
         </div>
       </div>
+      <TabBar active="trigger" />
     </>
   )
 }

@@ -69,6 +69,19 @@ const server = createServer(async (req, res) => {
 
   if (req.url.startsWith('/health')) return send(res, 200, { ok: true, email: !!RESEND_API_KEY })
 
+  // Friendly message if someone opens a relay URL in a browser (GET request).
+  // A browser address bar sends GET; /trigger only acts on POST, so explain that
+  // instead of returning a bare "not found".
+  if (req.method === 'GET' && (req.url === '/' || req.url.startsWith('/trigger') || req.url.startsWith('/alert'))) {
+    res.writeHead(200, { 'Content-Type': 'text/plain', 'Access-Control-Allow-Origin': '*' })
+    return res.end(
+      'OpenSOS relay is running.\n\n' +
+      'This endpoint only acts on HTTP POST. Opening the link in a browser sends a GET, which does nothing.\n\n' +
+      'To fire a test trigger from a terminal:\n' +
+      '  curl.exe -X POST "https://<this-host>/trigger?token=YOUR_TOKEN"\n'
+    )
+  }
+
   // Device fires a trigger -> notify subscribed apps.
   if (req.method === 'POST' && req.url.startsWith('/trigger')) {
     if (tokenOf(req.url) !== TOKEN) return send(res, 401, { ok: false, error: 'unauthorized' })
